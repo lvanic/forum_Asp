@@ -1,6 +1,4 @@
-﻿using forum.Models;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Security.Cryptography;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace forum.Utils
 {

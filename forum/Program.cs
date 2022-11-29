@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.Json.Serialization;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -30,21 +31,22 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddDbContext<ForumContext>();
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-
-    options.RequireHttpsMetadata = false;
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidIssuer = AuthOptions.ISSUER,
-        ValidateAudience = true,
-        ValidAudience = AuthOptions.AUDIENCE,
-        ValidateLifetime = true,
-        IssuerSigningKey = AuthOptions.GetSymmeetricSecurityKey(),
-        ValidateIssuerSigningKey = true,
-    };
-});
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = TokenOptions.ISSUER,
+            ValidateAudience = true,
+            ValidAudience = TokenOptions.AUDIENCE,
+            ValidateLifetime = true,
+            IssuerSigningKey = TokenOptions.GetSymmeetricSecurityKey(),
+            ValidateIssuerSigningKey = true,
+        };
+    });
 
 
 var MyPolicy = "MyPolicy";
@@ -79,7 +81,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseCors(MyPolicy);   
+app.UseCors(MyPolicy);
 
 app.Run();
 

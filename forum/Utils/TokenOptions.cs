@@ -3,7 +3,7 @@ using System.Text;
 
 namespace forum.Utils
 {
-    public class AuthOptions
+    public class TokenOptions
     {
         public const string ISSUER = "https://localhost:3001";
         public const string AUDIENCE = "https://localhost:3000";

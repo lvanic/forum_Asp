@@ -6,6 +6,6 @@ namespace forum.Controllers
     [Route("[auth]")]
     public class AuthContoller : Controller
     {
-        
+
     }
 }

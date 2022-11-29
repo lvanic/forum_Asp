@@ -1,11 +1,6 @@
-﻿
-using forum.Forms;
-using forum.Utils;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography;
 
 namespace forum.Models
 {
@@ -20,7 +15,7 @@ namespace forum.Models
         private string _password;
         public byte[] Salt { get; set; }
         public List<QuestionModel> Questions { get; set; } = new List<QuestionModel>();
-        public List<CommentModel> Comments { get; set; } = new List<CommentModel>(); 
+        public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
         public List<ReplyCommentModel> ReplyComments { get; set; } = new List<ReplyCommentModel>();
         public UserModel(string name, string password, byte[] salt)
         {

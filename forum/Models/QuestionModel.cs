@@ -15,6 +15,16 @@ namespace forum.Models
         public string Tag { get; set; }
         public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
         public List<FileModel> Files { get; set; } = new List<FileModel>();
-        
+        public IEnumerable<byte[]> GetFilesBytes(IWebHostEnvironment appEnvironment)
+        {
+            return Enumerable.Range(0, Files.Count()).Select(index =>
+            {
+                var path = $"{Files[index].Path}";
+                using FileStream fileStream = new FileStream(appEnvironment.WebRootPath + path, FileMode.Open);
+                byte[] buf = new byte[fileStream.Length];
+                fileStream.Read(buf);
+                return buf;
+            });
+        }
     }
 }
