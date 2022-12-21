@@ -11,6 +11,7 @@ using PagedList;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using AutoMapper;
 
 namespace forum.Controllers
 {
@@ -36,6 +37,8 @@ namespace forum.Controllers
             {
                 throw new UserNotFoundException();
             }
+            var u1 = user.GetPassword();
+            var u2 = Extensions.GetHash(authForm.Password, user.Salt);
             if (user.GetPassword() == Extensions.GetHash(authForm.Password, user.Salt))//TODO: whe searching in bd so bad...
             {
                 var claims = new List<Claim>
@@ -82,7 +85,28 @@ namespace forum.Controllers
             }
             return Ok();
         }
-
+        [Authorize]
+        [HttpPatch("/delete-comment")]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var commentModel = await _db.Comments.Where(x => x.CommentId == id).FirstOrDefaultAsync();
+            var deletedComment = _db.Comments.Remove(commentModel);
+            await _db.SaveChangesAsync();
+            return Ok(deletedComment);
+        }
+        [Authorize]
+        [HttpPatch("/change-comment")]
+        public async Task<IActionResult> ChangeComment([FromBody] CommentForm commentDto, int id)
+        {
+            var commentHandler = _db.Comments.Where(x => x.CommentId == id).FirstOrDefault();
+            if(commentHandler != null)
+            {
+                commentHandler.Date = new DateTime();
+                commentHandler.Text = commentDto.CommentText;
+            }
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
         [Authorize]
         [HttpGet("/user")]
         public async Task<IActionResult> GetUser()
@@ -100,35 +124,37 @@ namespace forum.Controllers
         [HttpPost("/register")]
         public async Task<IActionResult> PostRegister([FromBody] AuthForm authForm)
         {
-            var user = new UserModel(authForm.Login, authForm.Password, RandomNumberGenerator.GetBytes(128 / 8));
+            var salt = RandomNumberGenerator.GetBytes(128 / 8);
+            var password = Extensions.GetHash(authForm.Password, salt);
+            var user = new UserModel(authForm.Login, password, salt);
+            
 
             if (_db.Users.Where(x => x.Name == authForm.Login).Count() == 0)
             {
                 _db.Users.Add(user);
                 _db.SaveChanges();
 
+                var claims = new List<Claim>
+                {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
+                };
+
+                ClaimsIdentity identity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+
+                var jwt = GetSecurityToken(user.Name, claims);
+                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                var response = new
+                {
+                    access_token = encodedJwt,
+                    login = identity.Name
+                };
+
+                return Ok(response);
             }
             else
             {
                 return BadRequest("Такой пользователь уже зарегистрирован");
             }
-
-            var claims = new List<Claim>
-                {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
-                };
-
-            ClaimsIdentity identity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-
-            var jwt = GetSecurityToken(user.Name, claims);
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            var response = new
-            {
-                access_token = encodedJwt,
-                login = identity.Name
-            };
-
-            return Ok(response);
         }
         [Authorize]
         [HttpPost("/comment-reply")]

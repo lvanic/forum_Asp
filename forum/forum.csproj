@@ -24,8 +24,6 @@
     <Folder Include="wwwroot\documents\" />
     <Folder Include="wwwroot\Files\" />
     <Folder Include="Services\" />
-    <Folder Include="forumApplication\" />
-    <Folder Include="Repositories\" />
   </ItemGroup>
 
 </Project>

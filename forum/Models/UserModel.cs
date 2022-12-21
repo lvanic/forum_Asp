@@ -11,21 +11,24 @@ namespace forum.Models
         [Key]
         public int UserId { get; set; }
         public string Name { get; set; }
-        public string Password { get { return null; } set { _password = value; } }
+        public string Password 
+        { 
+            get => null; 
+            set => _password = value; 
+        }
         private string _password;
         public byte[] Salt { get; set; }
-        public List<QuestionModel> Questions { get; set; } = new List<QuestionModel>();
-        public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
-        public List<ReplyCommentModel> ReplyComments { get; set; } = new List<ReplyCommentModel>();
+        public List<QuestionModel> Questions { get; set; } 
+            = new List<QuestionModel>();
+        public List<CommentModel> Comments { get; set; } 
+            = new List<CommentModel>();
+        public List<ReplyCommentModel> ReplyComments { get; set; } 
+            = new List<ReplyCommentModel>();
         public UserModel(string name, string password, byte[] salt)
         {
             Salt = salt;
             Name = name;
             Password = password;
-        }
-        public static string Hash(string password)//TODO: add body methode
-        {
-            return password;
         }
         public string GetPassword()
         {

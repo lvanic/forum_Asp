@@ -1,4 +1,6 @@
-﻿namespace forum.Models
+﻿using forum.Models;
+
+namespace forum.Dto
 {
     public struct ResponseQuestion
     {
