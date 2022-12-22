@@ -72,37 +72,66 @@ namespace forum.Controllers
         [Authorize]
         [HttpPatch("/change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordForm passwordForm)
+        
         {
-            var user = await _db.Users.Where(x => x.Name == User.Identity.Name && x.GetPassword() == Extensions.GetHash(passwordForm.OldPassword, x.Salt)).FirstOrDefaultAsync();
+             
+            var user = await _db.Users.Where(x => x.Name == User.Identity.Name).FirstOrDefaultAsync();
+            var cmpNewPassword = Extensions.GetHash(passwordForm.OldPassword, user.Salt);
+            var newPassword = Extensions.GetHash(passwordForm.OldPassword, user.Salt);
+            var cmpOldPassword = user.GetPassword();
             if (user == null)
             {
-                return BadRequest("Неправильный пароль");
+                return BadRequest("Пользователь не найден");
+            }
+            else if(cmpNewPassword == cmpOldPassword)
+            {
+                user.Password = newPassword;
+                _db.SaveChangesAsync();
+                return Ok(user);
             }
             else
             {
-                _db.Users.Where(x => x.Name == User.Identity.Name).FirstOrDefault().Password = passwordForm.NewPassword;
-                _db.SaveChangesAsync();
+                return BadRequest("Пользователь не найден");
             }
-            return Ok();
+            
         }
         [Authorize]
-        [HttpPatch("/delete-comment")]
+        [HttpGet("/user-questions")]
+        public async Task<IActionResult> GetUserQuestions()
+        {
+            return Ok(new
+            {
+                questions = _db.Questions
+                    .Include(x => x.User).Select(x => new
+                    {
+                        Title = x.Title,
+                        Section = x.Section,
+                        Description = x.Description,
+                        QuestionId = x.QuestionId,
+                        UserName = x.User.Name
+                    })
+                    .Where(x => x.UserName == User.Identity.Name)
+                    .ToArray()
+            });
+        }
+        [Authorize]
+        [HttpDelete("/comment")]
         public async Task<IActionResult> DeleteComment(int id)
         {
             var commentModel = await _db.Comments.Where(x => x.CommentId == id).FirstOrDefaultAsync();
             var deletedComment = _db.Comments.Remove(commentModel);
             await _db.SaveChangesAsync();
-            return Ok(deletedComment);
+            return Ok();
         }
         [Authorize]
-        [HttpPatch("/change-comment")]
-        public async Task<IActionResult> ChangeComment([FromBody] CommentForm commentDto, int id)
+        [HttpPatch("/comment")]
+        public async Task<IActionResult> ChangeComment(int id, string text)
         {
             var commentHandler = _db.Comments.Where(x => x.CommentId == id).FirstOrDefault();
             if(commentHandler != null)
             {
                 commentHandler.Date = new DateTime();
-                commentHandler.Text = commentDto.CommentText;
+                commentHandler.Text = text;
             }
             await _db.SaveChangesAsync();
             return Ok();

@@ -9,7 +9,7 @@ namespace forum.Models
         [Key]
         public int QuestionId { get; set; }
         public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public UserModel User { get; set; }
         public string Section { get; set; }
         public string Tag { get; set; }

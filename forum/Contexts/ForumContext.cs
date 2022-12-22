@@ -21,8 +21,9 @@ namespace forum.DB
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CommentModel>().HasOne(p => p.User).WithMany(x => x.Comments).OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<ReplyCommentModel>().HasOne(p => p.User).WithMany(x => x.ReplyComments).OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CommentModel>().HasOne(p => p.User).WithMany(x => x.Comments).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ReplyCommentModel>().HasOne(p => p.User).WithMany(x => x.ReplyComments).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<ReplyCommentModel>().HasOne(p => p.RelatedComment).WithMany(x => x.ReplyComments).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<CommentModel>().HasIndex(p => new { p.Date });
 
