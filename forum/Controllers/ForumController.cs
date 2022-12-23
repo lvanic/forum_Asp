@@ -124,7 +124,7 @@ namespace forum.Controllers
             return Ok();
         }
         [Authorize]
-        [HttpPatch("/comment")]
+        [HttpPatch("/comment")] 
         public async Task<IActionResult> ChangeComment(int id, string text)
         {
             var commentHandler = _db.Comments.Where(x => x.CommentId == id).FirstOrDefault();
