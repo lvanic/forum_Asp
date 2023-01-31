@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace forum.Models
 {
     [Index(nameof(Name), IsUnique = true)]
-    public class UserModel
+    public class UserModel : IModel
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]

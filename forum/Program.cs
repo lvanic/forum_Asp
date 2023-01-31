@@ -84,14 +84,6 @@ app.MapControllers();
 app.UseCors(MyPolicy);
 
 
-Task.Run(() => Console.Beep(2000, 2));
-Task.Run(() => Console.Beep(5000, 2));
-Task.Run(() => Console.Beep(1000, 2));
-Task.Run(() => Console.Beep(8000, 2));
-Task.Run(() => Console.Beep(10000, 2));
-Task.Run(() => Console.Beep(7000, 2));
-Task.Run(() => Console.Beep(2000, 2));
-
 app.Run();
 
 

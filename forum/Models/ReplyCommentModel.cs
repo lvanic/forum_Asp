@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace forum.Models
 {
-    public class ReplyCommentModel
+    public class ReplyCommentModel : IModel
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]

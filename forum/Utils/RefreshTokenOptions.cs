@@ -3,10 +3,10 @@ using System.Text;
 
 namespace forum.Utils
 {
-    public class RefreshAuthOptions
+    public class RefreshTokenOptions
     {
-        public const string ISSUER = "ForumServer";
-        public const string AUDIENCE = "ForumReact";
+        public const string ISSUER = "https://localhost:3001";
+        public const string AUDIENCE = "https://localhost:3000";
         const string KEY = "zafagkflkfasfmnbasfhasfjhal";
         public const int LIFETIME = 1000;
 

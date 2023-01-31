@@ -39,7 +39,7 @@ namespace forum.Controllers
             }
             var u1 = user.GetPassword();
             var u2 = Extensions.GetHash(authForm.Password, user.Salt);
-            if (user.GetPassword() == Extensions.GetHash(authForm.Password, user.Salt))//TODO: whe searching in bd so bad...
+            if (u1 == u2)
             {
                 var claims = new List<Claim>
                     {
@@ -52,7 +52,7 @@ namespace forum.Controllers
                     return BadRequest();
                 }
                 var now = DateTime.UtcNow;
-                var jwt = GetSecurityToken(authForm.Login, identity.Claims);
+                var jwt = GetSecurityToken(authForm.Login, identity.Claims, 0);
                 var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
                 var response = new
                 {
@@ -130,7 +130,7 @@ namespace forum.Controllers
             var commentHandler = _db.Comments.Where(x => x.CommentId == id).FirstOrDefault();
             if(commentHandler != null)
             {
-                commentHandler.Date = new DateTime();
+                commentHandler.Date = DateTime.UtcNow;
                 commentHandler.Text = text;
             }
             await _db.SaveChangesAsync();
@@ -149,6 +149,12 @@ namespace forum.Controllers
             return Ok(result);
         }
 
+        [HttpGet("/refresh")]
+        public async Task<IActionResult> GetPairTokens()
+        {
+            var user = User;
+            return Ok(user.Identity.Name);
+        }
         [AllowAnonymous]
         [HttpPost("/register")]
         public async Task<IActionResult> PostRegister([FromBody] AuthForm authForm)
@@ -165,16 +171,17 @@ namespace forum.Controllers
 
                 var claims = new List<Claim>
                 {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Name),
                 };
-
+              
                 ClaimsIdentity identity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
 
-                var jwt = GetSecurityToken(user.Name, claims);
-                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                var jwtAccess = GetSecurityToken(user.Name, claims, 0);
+                var encodedAccessJwt = new JwtSecurityTokenHandler().WriteToken(jwtAccess);
+
                 var response = new
                 {
-                    access_token = encodedJwt,
+                    access_token = encodedAccessJwt,
                     login = identity.Name
                 };
 
@@ -329,16 +336,15 @@ namespace forum.Controllers
         {
             return Ok();
         }
-        private JwtSecurityToken GetSecurityToken(string name, IEnumerable<Claim> claims)
+        private JwtSecurityToken GetSecurityToken(string name, IEnumerable<Claim> claims, byte type)
         {
-            var jwt = new JwtSecurityToken(
+                var jwt = new JwtSecurityToken(
                 issuer: TokenOptions.ISSUER,
                 audience: TokenOptions.AUDIENCE,
                 claims: claims,
-                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(TokenOptions.LIFETIME)),  // действие токена истекает через 60 минут
+                expires: DateTime.UtcNow.Add(TimeSpan.FromMinutes(TokenOptions.LIFETIME)),
                 signingCredentials: new SigningCredentials(TokenOptions.GetSymmeetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-            return jwt;
+                return jwt;
         }
-
     }
 }

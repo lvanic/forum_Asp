@@ -8,7 +8,7 @@ namespace forum.Utils
         public const string ISSUER = "https://localhost:3001";
         public const string AUDIENCE = "https://localhost:3000";
         const string KEY = "SecretCodeEgorka";
-        public const int LIFETIME = 360;
+        public const int LIFETIME = 60;
 
         public static SymmetricSecurityKey GetSymmeetricSecurityKey()
         {
